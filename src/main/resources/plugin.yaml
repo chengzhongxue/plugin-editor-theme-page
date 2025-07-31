@@ -1,0 +1,19 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  name: editor-theme-page
+spec:
+  enabled: true
+  requires: ">=2.21.0"
+  author:
+    name: 困困鱼
+    website: https://github.com/chengzhongxue
+  logo: logo.svg
+  homepage: /
+  repo: https://github.com/chengzhongxuev/plugin-editor-theme-page
+  issues: https://github.com/chengzhongxue/plugin-editor-theme-page/issues
+  displayName: "主题编辑器"
+  description: "可编辑主题文件"
+  license:
+    - name: "GPL-3.0"
+      url: "https://github.com/chengzhongxuev/plugin-editor-theme-page/blob/main/LICENSE"

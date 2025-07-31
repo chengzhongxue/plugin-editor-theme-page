@@ -1,0 +1,156 @@
+<script lang="ts" setup>
+import { editorThemePageConsoleApiClient } from '@/api';
+import { normalizePath } from '@/utils/path';
+import { Toast, VButton, VLoading, VSpace } from '@halo-dev/components';
+import { useEventListener, useLocalStorage } from '@vueuse/core';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
+import RiMenuFoldLine from '~icons/ri/menu-fold-line';
+import RiMenuUnfoldLine from '~icons/ri/menu-unfold-line';
+
+const CodeEditor = defineAsyncComponent({
+  loader: () => import('@/components/CodeEditor.vue'),
+  loadingComponent: VLoading,
+});
+
+const SUPPORTED_EDIT_FILES = [
+  '.md',
+  '.html',
+  '.htm',
+  '.css',
+  '.js',
+  '.json',
+  '.svg',
+  '.xml',
+  '.txt',
+  '.yaml'
+];
+
+const IMAGE_FILES = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
+
+const props = withDefaults(defineProps<{ themeName: string; path?: string }>(), {
+  path: undefined,
+});
+
+const showSidebar = useLocalStorage('plugin-editor-theme-page:show-sidebar', true);
+
+const isEditableFile = computed(() => {
+  if (!props.path) {
+    return false;
+  }
+  return SUPPORTED_EDIT_FILES.some((ext) => props.path?.endsWith(ext));
+});
+
+const isImageFile = computed(() => {
+  if (!props.path) {
+    return false;
+  }
+  return IMAGE_FILES.some((ext) => props.path?.endsWith(ext));
+});
+
+const fullPath = computed(() => {
+  if (!props.path) {
+    return '';
+  }
+  return normalizePath('/', props.themeName, props.path);
+});
+
+// File Content
+const content = ref('');
+const processing = ref(false);
+
+async function handleFetchContent() {
+  if (!SUPPORTED_EDIT_FILES.some((ext) => props.path?.endsWith(ext))) {
+    return;
+  }
+
+  const { data } = await editorThemePageConsoleApiClient.themeFile.getFileContent({
+    name: props.themeName,
+    path: props.path,
+  });
+
+  content.value = data;
+}
+
+async function handleSaveContent() {
+  if (!props.path) {
+    return;
+  }
+
+  try {
+    processing.value = true;
+
+    await editorThemePageConsoleApiClient.themeFile.writeContentToFile({
+      name: props.themeName,
+      path: props.path,
+      writeContentRequest: {
+        content: content.value,
+      },
+    });
+
+    Toast.success('保存成功');
+    handleFetchContent();
+  } catch (error) {
+    Toast.error('保存失败');
+  } finally {
+    processing.value = false;
+  }
+}
+
+onMounted(() => {
+  handleFetchContent();
+});
+
+watch(
+  () => props.path,
+  (value) => {
+    if (value) {
+      handleFetchContent();
+    }
+  }
+);
+
+useEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    handleSaveContent();
+  }
+});
+
+</script>
+
+<template>
+  <div class=":uno: flex h-12 items-center justify-between border-b px-2">
+    <VSpace>
+      <div
+        class=":uno: inline-flex cursor-pointer items-center justify-center rounded p-1.5 transition-all hover:bg-gray-100"
+        :class="{ ':uno: bg-gray-100': !showSidebar }"
+        @click="showSidebar = !showSidebar"
+      >
+        <RiMenuFoldLine v-if="showSidebar" />
+        <RiMenuUnfoldLine v-else />
+      </div>
+      <span v-if="path" class=":uno: text-sm font-semibold text-gray-900">
+        {{ path }}
+      </span>
+    </VSpace>
+    <VSpace v-if="path && isEditableFile">
+      <VButton :loading="processing" type="secondary" @click="handleSaveContent"> 保存 </VButton>
+    </VSpace>
+  </div>
+  <div v-if="!path" class=":uno: flex size-full items-center justify-center">
+    <span class=":uno: text-sm text-gray-900"> 当前未选择文件 </span>
+  </div>
+  <div v-else-if="isImageFile" class=":uno: p-2">
+    <img :src="fullPath" />
+  </div>
+  <div
+    v-else-if="isEditableFile"
+    style="height: calc(100vh - 8.5rem)"
+    class=":uno: size-full overflow-auto"
+  >
+    <CodeEditor v-model="content" :path="path" />
+  </div>
+  <div v-else class=":uno: flex size-full items-center justify-center">
+    <span class=":uno: text-sm text-gray-900"> 当前文件不支持编辑和预览 </span>
+  </div>
+</template>

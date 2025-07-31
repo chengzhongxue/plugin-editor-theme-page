@@ -1,0 +1,9 @@
+.editor-theme-page-card-body {
+  height: 100%;
+  padding: 0 !important;
+}
+
+.editor-theme-page-card-body-overflow-visible {
+  overflow: visible !important;
+  padding: 0 !important;
+}

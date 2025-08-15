@@ -1,9 +1,9 @@
-import { definePlugin } from '@halo-dev/console-shared';
-import { defineAsyncComponent, markRaw } from 'vue';
-import { IconPalette } from "@halo-dev/components";
 import { VLoading } from '@halo-dev/components';
-import './styles/main.css';
+import { definePlugin } from '@halo-dev/console-shared';
+import { IconPalette } from "@halo-dev/components";
 import 'uno.css';
+import { defineAsyncComponent, markRaw } from 'vue';
+import './styles/main.css';
 
 export default definePlugin({
   components: {},

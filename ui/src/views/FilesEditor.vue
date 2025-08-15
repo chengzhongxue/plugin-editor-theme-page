@@ -120,18 +120,18 @@ const selectedFilePath = useRouteQuery<string | undefined>('path');
   <div class=":uno: m-0 rounded bg-white md:m-4">
     <VCard style="height: calc(100vh - 5.5rem)" :body-class="['editor-theme-page-card-body']">
       <div
-        class=":uno: grid h-full grid-cols-12 divide-y sm:divide-x sm:divide-y-0"
+        class=":uno: grid grid-cols-12 h-full divide-y sm:divide-x sm:divide-y-0"
         :class="{ ':uno: !divide-none': !showSidebar }"
       >
         <div
           v-show="showSidebar"
-          class=":uno: relative col-span-12 h-full overflow-auto p-2 sm:col-span-6 lg:col-span-5 xl:col-span-3"
+          class=":uno: relative col-span-12 h-full overflow-auto p-2 lg:col-span-5 sm:col-span-6 xl:col-span-3"
         >
           <FilesTreeSection v-if="theme" v-model="selectedFilePath"  @open:upload:modal="openUploadModal" :theme-name="theme.metadata.name" />
         </div>
 
         <div
-          class=":uno: col-span-12 sm:col-span-6 lg:col-span-7 xl:col-span-9"
+          class=":uno: col-span-12 lg:col-span-7 sm:col-span-6 xl:col-span-9"
           :class="{ ':uno: !col-span-12': !showSidebar }"
         >
           <FileContentEditor v-if="theme" :theme-name="theme.metadata.name" :path="selectedFilePath" />

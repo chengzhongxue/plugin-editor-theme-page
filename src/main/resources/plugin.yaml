@@ -2,6 +2,8 @@ apiVersion: plugin.halo.run/v1alpha1
 kind: Plugin
 metadata:
   name: editor-theme-page
+  annotations:
+    "store.halo.run/app-id": "app-lakabtpa"
 spec:
   enabled: true
   requires: ">=2.21.0"
